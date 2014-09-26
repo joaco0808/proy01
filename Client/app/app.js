@@ -1,8 +1,35 @@
-var app = angular.module('angularApp', ['ngRoute']);
+var app = angular.module('angularApp', ['ui.router']);
 
-app.config(function ($routeProvider) {
-    
-})
+app.config(function($stateProvider, $urlRouterProvider) {
+    //
+    // For any unmatched url, redirect to /state1
+    $urlRouterProvider.otherwise("/state1");
+    //
+    // Now set up the states
+    $stateProvider
+        .state('state1', {
+            url: "/state1",
+            templateUrl: "app/partials/state1.html"
+        })
+        .state('state1.list', {
+            url: "/list",
+            templateUrl: "app/partials/state1.list.html",
+            controller: function($scope) {
+                $scope.items = ["A", "List", "Of", "Items"];
+          }
+        })
+        .state('state2', {
+            url: "/state2",
+            templateUrl: "app/partials/state2.html"
+        })
+        .state('state2.list', {
+            url: "/list",
+            templateUrl: "app/partials/state2.list.html",
+            controller: function($scope) {
+                $scope.things = ["A", "Set", "Of", "Things"];
+            }
+    });
+});
 
 app.factory('simpleFactory',function () {
     var customers = [
@@ -15,32 +42,22 @@ app.factory('simpleFactory',function () {
 
     factory.getCustomers = function () {
         return customers;
-    }
-    factory.postCustomer = function (custº) {
+    };
+    factory.postCustomer = function (cust) {
         // body...
-    }
+    };
 
+    return factory;
 });
 
+
 //Controllers part
-var controllers = {};
-controllers.newController = function ($scope, simpleFactory) {
-    $scope.customers = [];
+app.controller('newController', function($scope, simpleFactory){
+        $scope.customers = [];
 
     init();
 
     function init () {
         $scope.customers = simpleFactory.getCustomers();
     }
-}
-
-controllers.otherController = function ($scope) {
-    $scope.data = [
-        {data1: "John Smith", data2: "Phonex"},
-        {data1: "John Doe", data2: "New York"},
-        {data1: "Jane Doe", data2: "San Fracisco"}
-    ];
-}
-
-
-app.controller(controllers);
+});

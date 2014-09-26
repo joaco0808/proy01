@@ -6,27 +6,17 @@
         <meta name="author" content="JAG">
 
         <title>TBD</title>
-        <script type="text/javascript" src="app/libs/angular.min.js"></script>
-        <script type="text/javascript" src="app/libs/angular-route.min.js"></script>
+        <script type="text/javascript" src="app/libs/angular/angular.min.js"></script>
+        <script type="text/javascript" src="app/libs/angular/angular-ui-router.min.js"></script>
         <script type="text/javascript" src="app/app.js"></script>
     </head>
 
     <body>
-        
         <!--  Placeholders for views -->
-        <div ng-view=""></div>
+        <h1>TEST</h1>
+        <div ui-view=""></div>
 
-        Name:
-        <br/>
-        <input type="text" ng-model= "nameIn"/>{{ nameIn }}
-        
-        <div class="container" ng-controller="newController"> 
-            <h3>Lopping</h3>
-            <ul>
-                <li data-ng-repeat="cust in customers | filter:nameIn | orderBy: 'city'">{{cust.name | uppercase}} - {{cust.city}}</li>
-            </ul>
-        </div>
-
+        <a ui-sref="state1">State 1</a>
+        <a ui-sref="state2">State 2</a>
     </body>
-
 </html>
