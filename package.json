@@ -1,10 +1,9 @@
 {
   "name": "",
   "version": "0.0.1",
-  "description"  : "Simple todo application.",
-  "main"         : "server.js",
-  "author"       : "Scotch",
+  "description"  : "",
+  "author"       : "JAG",
   "dependencies" : {
-    "express"    : "~4.7.2",
-    }
+    "express"    : "~4.7.2"
+   }
 }
