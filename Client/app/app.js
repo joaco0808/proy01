@@ -3,61 +3,92 @@ var app = angular.module('angularApp', ['ui.router']);
 app.config(function($stateProvider, $urlRouterProvider) {
     //
     // For any unmatched url, redirect to /state1
-    $urlRouterProvider.otherwise("/state1");
+    $urlRouterProvider.otherwise("/login");
     //
     // Now set up the states
     $stateProvider
-        .state('state1', {
-            url: "/state1",
-            templateUrl: "app/partials/state1.html"
-        })
-        .state('state1.list', {
-            url: "/list",
-            templateUrl: "app/partials/state1.list.html",
-            controller: function($scope) {
-                $scope.items = ["A", "List", "Of", "Items"];
-          }
-        })
-        .state('state2', {
-            url: "/state2",
-            templateUrl: "app/partials/state2.html"
-        })
-        .state('state2.list', {
-            url: "/list",
-            templateUrl: "app/partials/state2.list.html",
-            controller: function($scope) {
-                $scope.things = ["A", "Set", "Of", "Things"];
-            }
-    });
+        .state('login', {
+            url: "/login",
+            templateUrl: "app/partials/login.html",
+            controller: 'LoginController'
+        });
 });
 
-app.factory('simpleFactory',function () {
-    var customers = [
-        {name: "John Smith", city: "Phonex"},
-        {name: "John Doe", city: "New York"},
-        {name: "Jane Doe", city: "San Fracisco"}
-    ];
+app.factory('AuthService', function ($http, Session) {
+  var authService = {};
+ 
+  authService.login = function (credentials) {
+    return $http({
+                method: 'POST',
+                url: '/login',
+                // data: $.param({
+                //     username: credentials.username,
+                //     password: credentials.password
+                // }),
+                params: credentials,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            });
+  };
+ 
+  authService.isAuthenticated = function () {
+    return !!Session.userId;
+  };
+ 
+  authService.isAuthorized = function (authorizedRoles) {
+    if (!angular.isArray(authorizedRoles)) {
+      authorizedRoles = [authorizedRoles];
+    }
+    return (authService.isAuthenticated() &&
+      authorizedRoles.indexOf(Session.userRole) !== -1);
+  };
+ 
+  return authService;
+})
 
-    var factory = {};
-
-    factory.getCustomers = function () {
-        return customers;
-    };
-    factory.postCustomer = function (cust) {
-        // body...
-    };
-
-    return factory;
-});
+app.service('Session', function () {
+  this.create = function (sessionId, userId, userRole) {
+    this.id = sessionId;
+    this.userId = userId;
+    this.userRole = userRole;
+  };
+  this.destroy = function () {
+    this.id = null;
+    this.userId = null;
+    this.userRole = null;
+  };
+  return this;
+})
 
 
 //Controllers part
-app.controller('newController', function($scope, simpleFactory){
-        $scope.customers = [];
-
-    init();
-
-    function init () {
-        $scope.customers = simpleFactory.getCustomers();
-    }
+app.controller('LoginController', function($scope, $rootScope, AUTH_EVENTS, AuthService) {
+    $scope.credentials = {
+        username: '',
+        password: ''
+    };
+    $scope.login = function (credentials) {
+        debugger;
+        AuthService.login(credentials).then(function (user) {
+            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+            $scope.setCurrentUser(user);
+        }, function () {
+            $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+        });
+    };
 });
+
+app.constant('AUTH_EVENTS', {
+  loginSuccess: 'auth-login-success',
+  loginFailed: 'auth-login-failed',
+  logoutSuccess: 'auth-logout-success',
+  sessionTimeout: 'auth-session-timeout',
+  notAuthenticated: 'auth-not-authenticated',
+  notAuthorized: 'auth-not-authorized'
+})
+
+app.constant('USER_ROLES', {
+  all: '*',
+  admin: 'admin',
+  editor: 'editor',
+  guest: 'guest'
+})

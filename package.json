@@ -4,6 +4,10 @@
   "description"  : "",
   "author"       : "JAG",
   "dependencies" : {
-    "express"    : "~4.7.2"
+    "express"    : "~4.7.2",
+    "passport": "*",
+    "passport-local": "*",
+    "body-parser":"*",
+    "cookie-parser":"*"
    }
 }
