@@ -1,6 +1,6 @@
 var app = angular.module('angularApp', ['ui.router']);
 
-app.config(function($stateProvider, $urlRouterProvider) {
+app.config(function($stateProvider, $urlRouterProvider, USER_ROLES) {
     //
     // For any unmatched url, redirect to /state1
     $urlRouterProvider.otherwise("/login");
@@ -11,6 +11,17 @@ app.config(function($stateProvider, $urlRouterProvider) {
             url: "/login",
             templateUrl: "app/partials/login.html",
             controller: 'LoginController'
+        })
+        .state('home', {
+            url: "/home",
+            templateUrl: "app/partials/home.html"
+        })
+        .state('about', {
+            url: "/about",
+            views: {
+                '':{templateUrl: "app/partials/about.html"}
+            }
+            
         });
 });
 
@@ -21,17 +32,40 @@ app.factory('AuthService', function ($http, Session) {
     return $http({
                 method: 'POST',
                 url: '/login',
-                // data: $.param({
-                //     username: credentials.username,
-                //     password: credentials.password
-                // }),
                 params: credentials,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            })
+            .success(function (res, status, headers, config) {
+                
+                Session.create(res.id, res.user.id,
+                               res.user.role);
+                return res.user;
+            })
+            .error(function (data, status, headers, config) {
+                
+                alert(status);
             });
   };
- 
+
+  authService.isloggedin = function (callback, scope) {
+    return $http({
+                method: 'GET',
+                url: '/loggedin'
+            })
+            .then(function (res) {
+                var data = res.data;
+                debugger;
+                if(data === '0')
+                    Session.destroy();
+                else 
+                    Session.create(data.id, data.user.id, data.user.role);
+
+                callback(data,scope);
+            });
+  };
+
   authService.isAuthenticated = function () {
-    return !!Session.userId;
+    return !!Session.get("userId");
   };
  
   authService.isAuthorized = function (authorizedRoles) {
@@ -46,36 +80,71 @@ app.factory('AuthService', function ($http, Session) {
 })
 
 app.service('Session', function () {
-  this.create = function (sessionId, userId, userRole) {
-    this.id = sessionId;
-    this.userId = userId;
-    this.userRole = userRole;
-  };
-  this.destroy = function () {
-    this.id = null;
-    this.userId = null;
-    this.userRole = null;
-  };
-  return this;
+    
+    this.get = function(key) {
+        return sessionStorage.getItem(key);
+    };
+
+    this.create = function (sessionId, userId, userRole) {
+        sessionStorage.setItem('id', sessionId);
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('userRole', userRole);
+        this.id = sessionId;
+        this.userId = userId;
+        this.userRole = userRole;
+    };
+
+    this.destroy = function () {
+        sessionStorage.clear();
+        this.id = null;
+        this.userId = null;
+        this.userRole = null;
+    };
+return this;
 })
 
 
 //Controllers part
-app.controller('LoginController', function($scope, $rootScope, AUTH_EVENTS, AuthService) {
+app.controller('LoginController', ['$rootScope', '$scope', '$location', 'AUTH_EVENTS', 'AuthService',function($rootScope, $scope, $location, AUTH_EVENTS, AuthService) {
     $scope.credentials = {
         username: '',
         password: ''
     };
     $scope.login = function (credentials) {
-        debugger;
-        AuthService.login(credentials).then(function (user) {
+        AuthService.login(credentials).then(function (res) {
             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-            $scope.setCurrentUser(user);
+            
+            sessionStorage.user = JSON.stringify(res.data.user);
+            $scope.setCurrentUser(res.data.user);
+            $location.path('/home');
         }, function () {
             $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
         });
     };
-});
+}]);
+
+app.controller('ApplicationController', ['$scope', 'USER_ROLES', 'AuthService', 'Session',function ($scope,
+                                               USER_ROLES,
+                                               AuthService, Session) {
+    
+    var setUser = function (data, scope){
+        if (data.id == '0') {
+            scope.currentUser = null;
+        }else{
+            scope.currentUser = data.user;
+        };
+
+        scope.userRoles = USER_ROLES;
+        scope.isAuthorized = AuthService.isAuthorized;
+        scope.isAuthenticated = AuthService.isAuthenticated;
+    }
+
+    var x = AuthService.isloggedin(setUser, $scope);
+
+    $scope.setCurrentUser = function (user) {
+            $scope.currentUser = user;
+        }; 
+}])
 
 app.constant('AUTH_EVENTS', {
   loginSuccess: 'auth-login-success',

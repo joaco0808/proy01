@@ -6,15 +6,42 @@
         <meta name="author" content="JAG">
 
         <title>TBD</title>
+        <link rel="stylesheet" href="app/libs/bootstrap/css/bootstrap.min.css">
         <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
         <script type="text/javascript" src="app/libs/angular/angular.min.js"></script>
         <script type="text/javascript" src="app/libs/angular/angular-ui-router.min.js"></script>
         <script type="text/javascript" src="app/app.js"></script>
     </head>
 
-    <body>
-        <!--  Placeholders for views -->
-        <h1>TEST</h1>
+    <body ng-controller="ApplicationController">
+        <!-- NAVIGATION -->
+    <nav class="navbar navbar-inverse" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" ui-sref="#">###TBD###</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li ng-if="isAuthenticated()"><a ui-sref="home">Home</a></li>
+            <li ng-if="isAuthenticated()"><a ui-sref="about">About</a></li>
+            <li ng-if="!isAuthenticated()"><a ui-sref="login">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+<!-- THIS IS WHERE WE WILL INJECT OUR CONTENT ============================== -->
+    <div class="container">
+        <div ui-view></div>
+    </div>
+
+    <!-- <div ng-controller="ApplicationController">
+        <div ng-if="currentUser">Welcome, {{ currentUser.name }}</div>
+        <div ng-if="isAuthorized(userRoles.admin)">You're admin.</div>
+        <button ng-if="currentUser">Loggin</button>
+        <div ng-switch on="currentUser.role">
+            <div ng-switch-when="userRoles.admin">You're admin.</div>
+            <div ng-switch-when="userRoles.editor">You're editor.</div>
+            <div ng-switch-default>You're something else.</div>
+        </div>
         <div ui-view=""></div>
+    </div> -->
     </body>
 </html>

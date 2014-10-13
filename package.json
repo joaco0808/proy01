@@ -8,6 +8,7 @@
     "passport": "*",
     "passport-local": "*",
     "body-parser":"*",
-    "cookie-parser":"*"
+    "cookie-parser":"*",
+    "express-session":"*"
    }
 }
