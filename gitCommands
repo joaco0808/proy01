@@ -1,0 +1,19 @@
+Review the last changes in Repo:
+    $ git fetch && git log ..origin/master
+Get the last Code: 
+    $ git pull
+    
+Review the changes to make a Push:
+    $ git diff --stat origin/master
+    
+Review the status:
+    $ git status
+    
+Adding new files
+    $ git add [file1, file2, file3, ...]
+
+Make the commit
+    $ git commit -m 'added new files'
+
+Make a push:
+    $ git push [remote name] master
