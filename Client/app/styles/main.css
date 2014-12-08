@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "MyriadSetPro-Thin";
+  src: url('../fonts/MyriadSetPro-Thin.ttf') format("truetype");
+}
+
+.header{
+    color: #818181;
+    height: 75px;
+    width: 100%;
+}
+
+.header-logo {
+    font-size: 30px;
+    font-family: "Myriad Set Pro", "Lucida Grande", "Helvetica Neue", "Helvetica", "Arial", "Verdana", "sans-serif";
+    margin: 13px;
+    display: inline-block;
+}
+
+.logo-image {
+    float: left;
+}
+
+.logo-image-size {
+    width: 50px;
+    height: 50px;
+}
+.logo-name {
+    font-family: MyriadSetPro-Thin;
+    float: left;
+    padding: 7px 0 0 12px;
+}
+
+ul.nav.navbar-nav.navbar-right.ng-scope{
+    cursor: pointer;
+}

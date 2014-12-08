@@ -1,4 +1,4 @@
-var app = angular.module('angularApp', ['ui.router']);
+var app = angular.module('angularApp', ['ui.router', 'ui.bootstrap']);
 
 app.config(function($stateProvider, $urlRouterProvider, USER_ROLES) {
     //
@@ -15,6 +15,18 @@ app.config(function($stateProvider, $urlRouterProvider, USER_ROLES) {
         .state('home', {
             url: "/home",
             templateUrl: "app/partials/home.html"
+        })
+        .state('home.director', {
+            url: "/home/director",
+            templateUrl: "app/partials/home.director.html"
+        })
+        .state('home.profesor', {
+            url: "/home/profesor",
+            templateUrl: "app/partials/home.profesor.html"
+        })
+        .state('home.father', {
+            url: "/home/father",
+            templateUrl: "app/partials/home.father.html"
         })
         .state('about', {
             url: "/about",
@@ -33,13 +45,27 @@ app.factory('AuthService', function ($http, Session) {
                 method: 'POST',
                 url: '/login',
                 params: credentials,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'} 
             })
             .success(function (res, status, headers, config) {
                 
                 Session.create(res.id, res.user.id,
                                res.user.role);
                 return res.user;
+            })
+            .error(function (data, status, headers, config) {
+                alert(data);
+            });
+  };
+  
+  authService.logout = function (credentials) {
+    Session.destroy();
+    return $http({
+                method: 'POST',
+                url: '/logout'
+            })
+            .success(function (res, status, headers, config) {
+                
             })
             .error(function (data, status, headers, config) {
                 
@@ -54,7 +80,6 @@ app.factory('AuthService', function ($http, Session) {
             })
             .then(function (res) {
                 var data = res.data;
-                debugger;
                 if(data === '0')
                     Session.destroy();
                 else 
@@ -103,13 +128,13 @@ app.service('Session', function () {
 return this;
 })
 
-
 //Controllers part
 app.controller('LoginController', ['$rootScope', '$scope', '$location', 'AUTH_EVENTS', 'AuthService',function($rootScope, $scope, $location, AUTH_EVENTS, AuthService) {
     $scope.credentials = {
         username: '',
         password: ''
     };
+
     $scope.login = function (credentials) {
         AuthService.login(credentials).then(function (res) {
             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
@@ -123,13 +148,17 @@ app.controller('LoginController', ['$rootScope', '$scope', '$location', 'AUTH_EV
     };
 }]);
 
-app.controller('ApplicationController', ['$scope', 'USER_ROLES', 'AuthService', 'Session',function ($scope,
-                                               USER_ROLES,
-                                               AuthService, Session) {
+app.controller('ApplicationController', ['$scope', '$rootScope','$location', 'USER_ROLES', 'AuthService', 'Session',function (
+                                            $scope,
+                                            $rootScope,
+                                            $location,
+                                            USER_ROLES,
+                                            AuthService, Session) {
     
     var setUser = function (data, scope){
         if (data.id == '0') {
             scope.currentUser = null;
+            $rootScope.currentUser = null;
         }else{
             scope.currentUser = data.user;
         };
@@ -143,7 +172,36 @@ app.controller('ApplicationController', ['$scope', 'USER_ROLES', 'AuthService', 
 
     $scope.setCurrentUser = function (user) {
             $scope.currentUser = user;
-        }; 
+            $rootScope.currentUser = user;
+        };
+        
+    $scope.logout = function () {
+        $scope.isCollapsed = !$scope.isCollapsed;
+        AuthService.logout();
+        $location.path('/logout');
+    }
+    
+    $scope.items = [
+        'The first choice!',
+        'And another choice for you.',
+        'but wait! A third!'
+    ];
+    
+    $scope.status = {
+        isopen: false
+    };
+    
+    $scope.toggled = function(open) {
+        console.log('Dropdown is now: ', open);
+    };
+    
+    $scope.toggleDropdown = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.status.isopen = !$scope.status.isopen;
+    };
+
+    $scope.isCollapsed = true;
 }])
 
 app.constant('AUTH_EVENTS', {
@@ -158,6 +216,27 @@ app.constant('AUTH_EVENTS', {
 app.constant('USER_ROLES', {
   all: '*',
   admin: 'admin',
-  editor: 'editor',
-  guest: 'guest'
+  director: 'director',
+  profesor: 'profesor',
+  father: 'father'
 })
+
+app.run( function($rootScope, $state, $location) {
+    $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+        if ( sessionStorage.id === undefined || sessionStorage.id === null ){
+            debugger;
+            // no logged user, we should be going to #login
+            if ( toState.name === 'login' ) {
+              // already going to #login, no redirect needed
+            } else {
+                // not going to #login, we should redirect now
+                $location.path('/logout');
+            }
+        }else{
+            // logged user, we shouldn't be going to #login
+            if ( toState.name === 'login' ) {
+                event.preventDefault();
+            }
+        }
+    });
+ })

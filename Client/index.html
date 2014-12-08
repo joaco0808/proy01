@@ -1,33 +1,147 @@
 <!DOCTYPE html>
 <html ng-app="angularApp">
-    <head>
-        <meta charset="utf-8">
-        <meta name="description" content="">
-        <meta name="author" content="JAG">
 
-        <title>TBD</title>
-        <link rel="stylesheet" href="app/libs/bootstrap/css/bootstrap.min.css">
-        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="app/libs/angular/angular.min.js"></script>
-        <script type="text/javascript" src="app/libs/angular/angular-ui-router.min.js"></script>
-        <script type="text/javascript" src="app/app.js"></script>
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="JAG">
 
-    <body ng-controller="ApplicationController">
-        <!-- NAVIGATION -->
-    <nav class="navbar navbar-inverse" role="navigation">
-        <div class="navbar-header">
-            <a class="navbar-brand" ui-sref="#">###TBD###</a>
+    <title>TBD</title>
+
+    <link rel="stylesheet" href="app/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="app/styles/main.css">
+
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="app/libs/angular/angular.min.js"></script>
+    <script type="text/javascript" src="app/libs/angular/angular-ui-router.min.js"></script>
+    <script type="text/javascript" src="app/libs/bootstrap/js/ui-bootstrap-tpls-0.11.2.min.js"></script>
+    <script type="text/javascript" src="app/app.js"></script>
+</head>
+
+<body ng-controller="ApplicationController">
+    <!-- NAVIGATION -->
+    <div class="header">
+        <div class="header-logo">
+            <div class="logo-image">
+                <img src="app/images/Logo-03.jpg" class="logo-image-size">
+            </div>
+            <div class="logo-name">LOGO</div>
         </div>
-        <ul class="nav navbar-nav">
-            <li ng-if="isAuthenticated()"><a ui-sref="home">Home</a></li>
-            <li ng-if="isAuthenticated()"><a ui-sref="about">About</a></li>
-            <li ng-if="!isAuthenticated()"><a ui-sref="login">Login</a></li>
-        </ul>
+    </div>
+    <nav class="navbar navbar-inverse" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" ng-click="isCollapsed = !isCollapsed">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand"></a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" collapse="isCollapsed">
+                <ul ng-if="isAuthenticated()" class="nav navbar-nav" ng-switch="currentUser.role">
+                    <li>
+                        <a ui-sref="home"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Inicio
+                        </a>
+                    </li>
+                <!--Director NavBar-->
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="admin"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Colegios
+                        </a>
+                    </li>
+                <!--End Director NavBar-->
+                <!--Director NavBar-->
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="admin"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Indicadores
+                        </a>
+                    </li>
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="director"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Cursos
+                        </a>
+                    </li>
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="director"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Configuraciones
+                        </a>
+                    </li>
+                <!--End Director NavBar-->
+                <!--Profesor NavBar-->
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="profesor"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Curso
+                        </a>
+                    </li>
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="profesor"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Indicadores
+                        </a>
+                    </li>
+                <!--End Profesor NavBar-->
+                <!--Father NavBar-->
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="father"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Datos del Hijo
+                        </a>
+                    </li>
+                <!--End father NavBar-->
+                <!--Father NavBar-->
+                    <li>
+                        <a ui-sref="home"
+                           ng-switch-when="father"
+                           ng-click="isCollapsed = !isCollapsed">
+                            Datos del Hijo
+                        </a>
+                    </li>
+                <!--End father NavBar-->
+                    <li><a ui-sref="about" ng-click="isCollapsed = !isCollapsed">About</a>
+                    </li>
+                </ul>
+                <ul ng-if="!isAuthenticated()" class="nav navbar-nav navbar-right">
+                    <li><a ui-sref="login" ng-click="isCollapsed = !isCollapsed">Ingresar</a>
+                    </li>
+                </ul>
+                <ul ng-if="isAuthenticated()" class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown">{{ currentUser.name }} <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a>Cambiar de Contraseña</a>
+                            </li>
+                            <li><a>Another action</a>
+                            </li>
+                            <li><a>Something else here</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a ng-click="logout()">Salir</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
 
     <!-- MAIN CONTENT -->
-<!-- THIS IS WHERE WE WILL INJECT OUR CONTENT ============================== -->
+    <!-- THIS IS WHERE WE WILL INJECT OUR CONTENT ============================== -->
     <div class="container">
         <div ui-view></div>
     </div>
@@ -43,5 +157,6 @@
         </div>
         <div ui-view=""></div>
     </div> -->
-    </body>
+</body>
+
 </html>
